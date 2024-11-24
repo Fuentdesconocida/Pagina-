@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Ventas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      background-color: #1a1a2e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Animación futurista en la parte superior */
+    .header {
+      position: relative;
+      background: linear-gradient(45deg, #00b4d8, #4CAF50, #007BFF);
+      background-size: 300% 300%;
+      animation: gradientShift 5s ease infinite;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    h2, p, label, .table-container {
+      color: #fff;
+    }
+
+    .btn {
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background-color: #4CAF50;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #45a049;
+    }
+
+    .btn-success {
+      background-color: #007BFF;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #0056b3;
+    }
+
+    .table-container {
+      margin-top: 20px;
+    }
+
+    #receiptContainer {
+      display: none;
+      text-align: center;
+      background-color: #1a1a2e;
+      color: #fff;
+      border: 2px solid #00b4d8;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    #receiptContainer h3 {
+      color: #00b4d8;
+    }
+
+    #receiptContainer p {
+      margin: 5px 0;
+    }
+
+    .highlight {
+      color: #00b4d8;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Net migg - Sistema de facturacion </h2>
+    <p><a href="#" class="text-decoration-none text-info">beinvendio a nuestro sitio web</a></p>
+  </div>
+
+  <div class="container mt-5">
+    <!-- Formulario -->
+    <form id="salesForm">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="clientName" class="form-label">Nombre del Cliente:</label>
+          <input type="text" class="form-control" id="clientName" placeholder="Ingresa el nombre del cliente" required>
+        </div>
+        <div class="col-md-6">
+          <label for="purchaseDate" class="form-label">Fecha de Compra:</label>
+          <input type="date" class="form-control" id="purchaseDate" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="digitalService" class="form-label">Servicio Digital:</label>
+          <select class="form-select" id="digitalService" required>
+            <option value="" disabled selected>Selecciona un servicio</option>
+            <option value="Streaming Básico">Streaming Básico</option>
+            <option value="Streaming Premium">Streaming Premium</option>
+            <option value="Streaming VIP">Streaming VIP</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="price" class="form-label">Precio:</label>
+          <input type="number" class="form-control" id="price" placeholder="Ingresa el precio" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <label for="description" class="form-label">Descripción:</label>
+          <textarea class="form-control" id="description" placeholder="Ingresa una descripción" rows="2" required>Pantalla</textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Registrar Venta</button>
+    </form>
+
+    <!-- Tabla -->
+    <div class="table-container">
+      <table class="table table-dark table-striped">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Servicio</th>
+            <th>Precio</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="salesTableBody">
+          <!-- Fila de ejemplo -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Contenedor para generar factura -->
+    <div id="receiptContainer">
+      <h3>Net migg - Comprobante de Compra</h3>
+      <p>👤 <span class="highlight">Cliente:</span> <span id="receiptClient"></span></p>
+      <p>📅 <span class="highlight">Fecha:</span> <span id="receiptDate"></span></p>
+      <p>🎯 <span class="highlight">Servicio:</span> <span id="receiptService"></span></p>
+      <p>💰 <span class="highlight">Precio:</span> <span id="receiptPrice"></span></p>
+      <p>📝 <span class="highlight">Descripción:</span> <span id="receiptDescription"></span></p>
+      <p>📱 <span class="highlight">Soporte WhatsApp:</span> +57 3154718115</p>
+      <p>¡Gracias por preferirnos! 🌟</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('salesForm');
+    const salesTableBody = document.getElementById('salesTableBody');
+    const receiptContainer = document.getElementById('receiptContainer');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const clientName = document.getElementById('clientName').value;
+      const purchaseDate = document.getElementById('purchaseDate').value;
+      const digitalService = document.getElementById('digitalService').value;
+      const price = document.getElementById('price').value;
+      const description = document.getElementById('description').value;
+
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>${clientName}</td>
+        <td>${purchaseDate}</td>
+        <td>${digitalService}</td>
+        <td>${price}</td>
+        <td>${description}</td>
+        <td>
+          <button class="btn btn-success btn-sm" onclick="generateImage('${clientName}', '${purchaseDate}', '${digitalService}', '${price}', '${description}')">Descargar Factura</button>
+        </td>
+      `;
+      salesTableBody.appendChild(newRow);
+
+      form.reset();
+    });
+
+    function generateImage(client, date, service, price, description) {
+      document.getElementById('receiptClient').textContent = client;
+      document.getElementById('receiptDate').textContent = date;
+      document.getElementById('receiptService').textContent = service;
+      document.getElementById('receiptPrice').textContent = `COP ${price}`;
+      document.getElementById('receiptDescription').textContent = description;
+
+      receiptContainer.style.display = 'block';
+
+      html2canvas(receiptContainer).then(canvas => {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = `factura-${client}.png`;
+        link.click();
+        receiptContainer.style.display = 'none';
+      });
+    }
+  </script>
+</body>
+</html>
